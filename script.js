@@ -23,7 +23,7 @@ function secondsToMinutesSeconds(seconds) {
 async function getSongs(folder) {
   currFolder = folder;
   try {
-    let a = await fetch(`/${folder}/`);
+    let a = await fetch(`https://github.com/ShahriyarH10/Video-84_Project_Sopt/tree/master/${folder}/`);
     if (!a.ok) {
       throw new Error("Network response was not ok");
     }
@@ -109,7 +109,7 @@ function updateSeekbar() {
 
 // Fetch and display albums
 async function displayAlbums() {
-  let a = await fetch(`/songs`);
+  let a = await fetch(`https://github.com/ShahriyarH10/Video-84_Project_Sopt/tree/master/songs/`);
   let response = await a.text();
   let div = document.createElement("div");
   div.innerHTML = response;
@@ -120,7 +120,7 @@ async function displayAlbums() {
   for (let i = 0; i < array.length; i++) {
     if (array[i].href.includes("/songs")) {
       let folder = array[i].href.split("/").slice(-2)[0];
-      let a = await fetch(`/songs/${folder}/info.json`);
+      let a = await fetch(`https://github.com/ShahriyarH10/Video-84_Project_Sopt/tree/master/songs/${folder}/info.json`);
       let response = await a.json();
       cardContainer.innerHTML += `
       <div data-folder="${folder}" class="card">
