@@ -23,48 +23,56 @@ function secondsToMinutesSeconds(seconds) {
 async function getSongs(folder) {
   currFolder = folder;
   try {
-    let a = await fetch(`https://github.com/ShahriyarH10/Video-84_Project_Sopt/tree/master/${folder}/`);
-    if (!a.ok) {
-      throw new Error("Network response was not ok");
-    }
-    let response = await a.text();
+    let response = await fetch(`http://127.0.0.1:3000/${folder}/`);
+    if (!response.ok) throw new Error("Network response was not ok");
+
+    let text = await response.text();
     let div = document.createElement("div");
-    div.innerHTML = response;
+    div.innerHTML = text;
     let as = div.getElementsByTagName("a");
-    songs = [];
+    let songs = [];
 
     for (let element of as) {
       if (element.href.endsWith(".mp3")) {
-        songs.push(decodeURIComponent(element.href.split(`/${folder}/`)[1]));
+        let songName = decodeURIComponent(element.href.split(`/${folder}/`)[1]);
+        songs.push({ name: songName, artist: "Loading..." });
       }
     }
 
-    // Display songs in the list
     let songUL = document.querySelector(".songList ul");
     songUL.innerHTML = "";
     for (const song of songs) {
-      songUL.innerHTML += `
-      <li>
+      let li = document.createElement("li");
+      li.innerHTML = `
         <img class="invert" src="img/music.svg" alt="Music Icon" />
         <div class="info">
-          <div>${song}</div>
-          <div>Song Artist</div>
+          <div>${song.name}</div>
+          <div class="artist">${song.artist}</div>
           <div class="playnow">
             <span>Play Now</span>
-            <i class="fa-regular fa-circle-play fa-1x"></i>
+            <i class="fa-regular fa-circle-play fa-beat fa-2x"></i>
           </div>
         </div>
-      </li>`;
-    }
+      `;
+      songUL.appendChild(li);
 
-    // Attach event listeners to each song
-    Array.from(songUL.getElementsByTagName("li")).forEach((e) => {
-      e.addEventListener("click", () => {
-        let songName = e.querySelector(".info div").innerHTML.trim();
-        console.log("Playing:", songName);
-        playMusic(songName);
+      // Fetch metadata dynamically
+      jsmediatags.read(`http://127.0.0.1:3000/${folder}/${song.name}`, {
+        onSuccess: function (tag) {
+          let artist = tag.tags.artist || "Unknown Artist";
+          li.querySelector(".artist").innerText = artist;
+        },
+        onError: function () {
+          li.querySelector(".artist").innerText = "Unknown Artist";
+        },
       });
-    });
+
+      // Attach event listener
+      li.addEventListener("click", () => {
+        console.log("Playing:", song.name);
+        playMusic(song.name);
+      });
+    }
   } catch (error) {
     alert("Failed to fetch songs. Please try again later.");
   }
@@ -109,18 +117,19 @@ function updateSeekbar() {
 
 // Fetch and display albums
 async function displayAlbums() {
-  let a = await fetch(`https://github.com/ShahriyarH10/Video-84_Project_Sopt/tree/master/songs/`);
+  let a = await fetch(`http://127.0.0.1:3000/songs/`);
   let response = await a.text();
   let div = document.createElement("div");
   div.innerHTML = response;
   let anchors = div.getElementsByTagName("a");
   let cardContainer = document.querySelector(".cardContainer");
   cardContainer.innerHTML = "";
+
   let array = Array.from(anchors);
   for (let i = 0; i < array.length; i++) {
     if (array[i].href.includes("/songs")) {
       let folder = array[i].href.split("/").slice(-2)[0];
-      let a = await fetch(`https://github.com/ShahriyarH10/Video-84_Project_Sopt/tree/master/songs/${folder}/info.json`);
+      let a = await fetch(`http://127.0.0.1:3000/songs/${folder}/info.json`);
       let response = await a.json();
       cardContainer.innerHTML += `
       <div data-folder="${folder}" class="card">
@@ -155,19 +164,6 @@ if (play) {
     }
   });
 }
-
-// const mute = document.querySelector(".volume>img");
-// if (mute) {
-//   mute.addEventListener("click", (e) => {
-//     if (e.target.src.includes("img/volume.svg")) {
-//       e.target.src.replace("img/volume.svg", "img/mute.svg");
-//       currentSong.volume = 0;
-//     } else {
-//       e.target.src.replace("img/mute.svg", "img/volume.svg");
-//       currentSong.volume = 0.1;
-//     }
-//   });
-// }
 
 // Main function
 async function main() {

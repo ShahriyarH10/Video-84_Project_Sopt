@@ -134,6 +134,7 @@ body {
 .card img {
   width: 100%;
   object-fit: contain;
+  border-radius: 50px;
 }
 
 .play {
@@ -193,6 +194,7 @@ body {
   align-items: center;
   position: fixed;
   bottom: 30px;
+  right: 1.2rem;
   filter: invert(1);
   background: #e2d9d9;
   border-radius: 10px;
@@ -349,6 +351,12 @@ body {
     height: 100vh;
     position: fixed;
     top: 0;
+  }
+
+  .header {
+    margin-top: 1rem;
+    margin-left: 0.6rem;
+
   }
 
   .songinfo,
